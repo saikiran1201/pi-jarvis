@@ -74,6 +74,20 @@ exec env \
 NATIVELAUNCH
 chmod +x "$BIN_DIR/pi-jarvis-native"
 
+echo "==> Installing app icon..."
+mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
+python3 - <<'PYICON' 2>/dev/null || true
+from PIL import Image, ImageDraw, ImageFont
+img = Image.new("RGBA",(256,256),(0,0,0,0))
+d = ImageDraw.Draw(img)
+d.rounded_rectangle([8,8,248,248],radius=48,fill=(13,17,23,255),outline=(88,166,255,255),width=8)
+try: f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",120)
+except Exception: f = ImageFont.load_default()
+d.text((128,128),"J",font=f,fill=(88,166,255,255),anchor="mm")
+img.save("$HOME/.local/share/icons/hicolor/256x256/apps/pi-jarvis.png")
+PYICON
+gtk-update-icon-cache -f ~/.local/share/icons/hicolor 2>/dev/null || true
+
 echo "==> Creating app-menu entries..."
 mkdir -p "$HOME/.local/share/applications"
 cat > "$HOME/.local/share/applications/pi-jarvis.desktop" <<EOF
@@ -83,7 +97,8 @@ Name=Pi Jarvis
 Comment=Your personal AI assistant — chat window (podman-isolated)
 Exec=$BIN_DIR/pi-jarvis-gui
 Terminal=false
-Categories=Utility;Office;
+Categories=Utility;
+Icon=pi-jarvis
 Keywords=jarvis;assistant;ai;
 EOF
 cat > "$HOME/.local/share/applications/pi-jarvis-terminal.desktop" <<EOF
@@ -93,7 +108,8 @@ Name=Pi Jarvis (Terminal)
 Comment=Your personal AI assistant — terminal chat (podman-isolated)
 Exec=$BIN_DIR/pi-jarvis-desktop
 Terminal=true
-Categories=Utility;Office;
+Categories=Utility;
+Icon=pi-jarvis
 Keywords=jarvis;assistant;ai;terminal;
 EOF
 
@@ -104,7 +120,8 @@ Name=Pi Jarvis (Native UI)
 Comment=Your personal AI assistant — full desktop UI via PI-Desktop
 Exec=$BIN_DIR/pi-jarvis-native
 Terminal=false
-Categories=Utility;Office;
+Categories=Utility;
+Icon=pi-jarvis
 Keywords=jarvis;assistant;ai;native;
 DESKTOPEOF
 
