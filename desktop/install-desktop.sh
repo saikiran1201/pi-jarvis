@@ -85,6 +85,12 @@ try: f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.tt
 except Exception: f = ImageFont.load_default()
 d.text((128,128),"J",font=f,fill=(88,166,255,255),anchor="mm")
 img.save("$HOME/.local/share/icons/hicolor/256x256/apps/pi-jarvis.png")
+img2 = Image.new("RGBA",(256,256),(0,0,0,0))
+d2 = ImageDraw.Draw(img2)
+d2.rounded_rectangle([8,8,248,208],radius=56,fill=(13,17,23,255),outline=(63,185,80,255),width=8)
+d2.polygon([(70,208),(70,246),(112,208)],fill=(13,17,23,255))
+d2.text((128,106),"J",font=f,fill=(63,185,80,255),anchor="mm")
+img2.save("$HOME/.local/share/icons/hicolor/256x256/apps/pi-jarvis-chat.png")
 PYICON
 gtk-update-icon-cache -f ~/.local/share/icons/hicolor 2>/dev/null || true
 
@@ -123,6 +129,18 @@ Terminal=false
 Categories=Utility;
 Icon=pi-jarvis
 Keywords=jarvis;assistant;ai;native;
+DESKTOPEOF
+
+cat > "$HOME/.local/share/applications/pi-jarvis-chat.desktop" <<DESKTOPEOF
+[Desktop Entry]
+Type=Application
+Name=PI-Jarvis Chat
+Comment=Your personal AI assistant — browser chat window
+Exec=$BIN_DIR/pi-jarvis-gui
+Terminal=false
+Icon=pi-jarvis-chat
+Categories=Utility;
+Keywords=jarvis;assistant;ai;chat;
 DESKTOPEOF
 
 cat <<'EOF'
