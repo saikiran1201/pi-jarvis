@@ -8,10 +8,16 @@ PI_AGENT="${HOME}/.pi/agent"
 
 echo "==> Installing personal AI assistant from ${REPO_DIR}"
 
-# 1. Agent rules
+# 1. Agent rules — never clobber existing setup
 mkdir -p "${PI_AGENT}"
-ln -sf "${REPO_DIR}/AGENTS.md" "${PI_AGENT}/AGENTS.md"
-echo "    ✓ AGENTS.md linked"
+if [ -f "${PI_AGENT}/AGENTS.md" ] && [ ! -L "${PI_AGENT}/AGENTS.md" ]; then
+  cp "${PI_AGENT}/AGENTS.md" "${PI_AGENT}/AGENTS.md.pre-assistant"
+  echo "    ! ${PI_AGENT}/AGENTS.md already exists — backed up to AGENTS.md.pre-assistant"
+  echo "    ! Existing rules kept. Merge anything you want from this repo's AGENTS.md into it."
+else
+  ln -sf "${REPO_DIR}/AGENTS.md" "${PI_AGENT}/AGENTS.md"
+  echo "    ✓ AGENTS.md linked"
+fi
 
 # 2. Skills
 mkdir -p "${PI_AGENT}/skills"
