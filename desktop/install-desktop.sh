@@ -18,7 +18,7 @@ DESKTOP_BIN="$(command -v pi-desktop || true)"
 [ -x "$DESKTOP_BIN" ] || [ -x /opt/PI-Desktop/pi-desktop ] || { echo "PI-Desktop is not installed — get it from https://pi.dev"; exit 1; }
 [ -x "$DESKTOP_BIN" ] || DESKTOP_BIN=/opt/PI-Desktop/pi-desktop
 # prefer a PI-Jarvis-branded copy if one exists (see guides/native-branding.md)
-PATCHED="$HOME/.local/opt/pi-jarvis-desktop/pi-desktop"
+PATCHED="$HOME/.local/opt/pi-jarvis-desktop/pi-jarvis-bin"
 if [ -x "$PATCHED" ]; then
   DESKTOP_BIN="$PATCHED"
   # a user-copied chrome-sandbox can't keep root ownership -> Electron aborts.
