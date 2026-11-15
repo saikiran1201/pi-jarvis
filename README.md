@@ -4,7 +4,7 @@
 
 A minimal, open-source starter kit that turns [PI-Desktop](https://github.com/badlogic/pi-mono) — the terminal coding agent — into a **personal AI assistant** that actually knows you.
 
-No 500-line prompt. No 16-package bloat. **5 packages, 2 skills, 1 install script.**
+No 500-line prompt. No 16-package bloat. **5 packages, 4 skills, 1 install script.**
 
 ```bash
 git clone https://github.com/saikiran1201/pi-jarvis.git
@@ -21,6 +21,8 @@ That's it. Your assistant now remembers you.
 |---|---|
 | *"morning brief"* | Scans your notes + sessions → **In progress / Waiting on / Today's focus** |
 | *"remember this: …"* | Saves facts, preferences, decisions to long-term memory |
+| *"research X"* | Web search → 5-line answer with **cited sources** |
+| *"end of day"* | Summarizes the day, commits finished work, queues tomorrow's first task |
 
 Skills are plain Markdown — read one, and you'll know exactly how your assistant thinks. Then write your own.
 
@@ -30,7 +32,7 @@ Skills are plain Markdown — read one, and you'll know exactly how your assista
 PI-Desktop  ──────────────  the engine (already installed)
 └── ~/.pi/agent/            ← everything personal lives here
      ├── AGENTS.md           personality, rules, privacy baseline
-     ├── skills/             2 on-demand capabilities
+     ├── skills/             4 on-demand capabilities
      └── memory              pi-hermes: remembers you between sessions
 ```
 
@@ -58,7 +60,9 @@ Nothing is ever lost — any removed package is one `pi install` away.
 ├── AGENTS.md                  the assistant's personality & rules
 ├── skills/
 │   ├── daily-brief/           morning brief
-│   └── remember/              long-term memory capture
+│   ├── remember/              long-term memory capture
+│   ├── web-research/          cited web research
+│   └── end-of-day/            daily wrap-up + commits
 ├── guides/
 │   ├── pi-packages.md         the 5 packages explained
 │   └── machine-migration.md   move to a new laptop in 5 minutes

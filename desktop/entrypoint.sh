@@ -13,6 +13,7 @@ if [ ! -f "$CFG/AGENTS.md" ]; then
   pi install npm:pi-observational-memory || true
   pi install npm:@netandreus/pi-auto || true
   pi install npm:pi-web-access || true
+  pi install npm:tau-all-agent || true
   echo "==> Seeded."
 fi
 

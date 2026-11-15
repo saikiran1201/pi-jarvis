@@ -39,6 +39,8 @@ cat <<'EOF'
 
     "morning brief"      → your daily-brief skill
     "remember this: ..." → stores a fact in long-term memory
+    "research X"         → web research with cited sources
+    "end of day"         → summary + commits + tomorrow's first task
 
 Optional: install the 5 recommended packages (see guides/pi-packages.md).
 EOF
