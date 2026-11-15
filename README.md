@@ -4,7 +4,7 @@
 
 A minimal, open-source starter kit that turns [PI-Desktop](https://github.com/badlogic/pi-mono) — the terminal coding agent — into a **personal AI assistant** that actually knows you.
 
-No 500-line prompt. No 16-package bloat. **5 packages, 4 skills, 1 install script.**
+No 500-line prompt. No 16-package bloat. **5 packages, 4 skills, 1 install script — plus optional NVIDIA OpenShell secure mode.**
 
 ```bash
 git clone https://github.com/saikiran1201/pi-jarvis.git
@@ -162,3 +162,20 @@ One app, fully isolated from your coding setup:
 - Opens on its own workspace (`~/Jarvis-Workspace`), own memory, own sessions
 - Brain lives in `~/.pi-jarvis-desktop/`, keys in `~/.pi-jarvis-desktop.env` (never committed)
 - Requires PI-Desktop installed (https://pi.dev); if a PI-Jarvis-branded copy exists it's used so the header reads **PI-Jarvis**
+
+## 🔐 Secure Mode — NVIDIA OpenShell
+
+PI-Jarvis can run inside [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) — a kernel-enforced sandbox where the assistant gets real shell/file/network capability **without ever seeing your API key** (the gateway injects credentials only into requests bound for approved endpoints).
+
+```bash
+# one-time setup (needs podman + openshell CLI, see sandbox/README)
+./sandbox/setup.sh
+
+# then:
+pi-jarvis-secure                  # interactive chat inside the sandbox
+pi-jarvis-secure "morning brief"  # one-shot
+```
+
+What you gain: every file access, syscall, and network connection is policy-checked at the kernel level; denied actions are logged; policy changes are formally verified before activation. What it costs: the sandbox is isolated from your host — it sees only its own workspace.
+
+Files: [`sandbox/`](sandbox/) — image build, setup script, secure launcher.
