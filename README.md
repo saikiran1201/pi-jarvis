@@ -1,4 +1,4 @@
-# 🤖 personal-ai-assistant
+# 🤖 pi-jarvis
 
 > **Your AI, but with a memory, a personality, and a morning routine.**
 
@@ -7,8 +7,8 @@ A minimal, open-source starter kit that turns [PI-Desktop](https://github.com/ba
 No 500-line prompt. No 16-package bloat. **5 packages, 4 skills, 1 install script.**
 
 ```bash
-git clone https://github.com/saikiran1201/personal-ai-assistant.git
-cd personal-ai-assistant && ./install.sh
+git clone https://github.com/saikiran1201/pi-jarvis.git
+cd pi-jarvis && ./install.sh
 ```
 
 That's it. Your assistant now remembers you.
@@ -77,8 +77,8 @@ Nothing is ever lost — any removed package is one `pi install` away.
 
 **2. Clone and install:**
 ```bash
-git clone https://github.com/saikiran1201/personal-ai-assistant.git
-cd personal-ai-assistant && ./install.sh
+git clone https://github.com/saikiran1201/pi-jarvis.git
+cd pi-jarvis && ./install.sh
 ```
 
 **3. Restart PI-Desktop and say:**
