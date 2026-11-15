@@ -1,0 +1,17 @@
+# Pi Jarvis — containerized personal AI assistant
+FROM docker.io/library/node:22-bookworm-slim
+
+# pi coding agent
+RUN npm install -g @earendil-works/pi-coding-agent@1.5.2
+
+# seed config: rules + skills, copied into the user's config dir on first launch
+COPY AGENTS.md /opt/jarvis-seed/AGENTS.md
+COPY skills/ /opt/jarvis-seed/skills/
+
+ENV PI_CODING_AGENT_DIR=/home/jarvis/.pi-jarvis
+WORKDIR /home/jarvis
+
+COPY desktop/entrypoint.sh /usr/local/bin/jarvis
+RUN chmod +x /usr/local/bin/jarvis
+
+ENTRYPOINT ["/usr/local/bin/jarvis"]

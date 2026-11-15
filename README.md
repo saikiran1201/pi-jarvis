@@ -119,3 +119,33 @@ Fork it, rename it, make it weirdly yours. Good PRs: new skills, tighter `AGENTS
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## 🖥️ Desktop app mode (podman) — *run jarvis as its own app*
+
+Want jarvis fully isolated from your system — own memory, own packages, own everything — launched from your **app menu**? That's the desktop mode:
+
+```bash
+git clone https://github.com/saikiran1201/pi-jarvis.git
+cd pi-jarvis
+./desktop/install-desktop.sh        # builds the container + installs the app menu entry
+```
+
+Then launch **"Pi Jarvis"** from your applications menu (or run `pi-jarvis-desktop`). First launch seeds the config and installs packages automatically. Provide your model key:
+
+```bash
+OPENROUTER_API_KEY=sk-or-... pi-jarvis-desktop
+```
+
+What it gives you:
+
+| | Host install (`./install.sh`) | Desktop mode (podman) |
+|---|---|---|
+| Isolation | shares your `~/.pi/agent` | **fully sandboxed** (`~/.pi-jarvis-desktop/`) |
+| Persistence | native | host-mounted config dir — memory survives restarts |
+| Depends on | PI-Desktop / pi on host | podman only |
+
+Files: [`desktop/Containerfile`](desktop/Containerfile) · [`desktop/entrypoint.sh`](desktop/entrypoint.sh) · [`desktop/install-desktop.sh`](desktop/install-desktop.sh)
+
+Requires Linux with [podman](https://podman.io) (`sudo apt install podman`).
