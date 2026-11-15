@@ -165,6 +165,13 @@ One app, fully isolated from your coding setup:
 
 ## 🔐 Secure Mode — NVIDIA OpenShell
 
+Two sandboxes, two personalities, fully isolated from each other:
+
+| Sandbox | Personality | Launcher |
+|---|---|---|
+| `pi-jarvis` | minimal personal assistant (jarvis brain) | `pi-jarvis-secure` |
+| `pi-coder` | default pi coding agent | `pi-coder-secure` |
+
 PI-Jarvis can run inside [NVIDIA OpenShell](https://github.com/NVIDIA/OpenShell) — a kernel-enforced sandbox where the assistant gets real shell/file/network capability **without ever seeing your API key** (the gateway injects credentials only into requests bound for approved endpoints).
 
 ```bash

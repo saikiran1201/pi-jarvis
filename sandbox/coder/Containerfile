@@ -1,0 +1,6 @@
+# PI-Coder agent image for OpenShell sandboxes — pi in default coding mode,
+# no jarvis personality, sessions in the sandbox workspace.
+FROM docker.io/library/node:22-bookworm-slim
+RUN npm install -g @earendil-works/pi-coding-agent@1.5.2
+USER 1000
+ENV PI_CODING_AGENT_DIR=/sandbox/.pi-coder

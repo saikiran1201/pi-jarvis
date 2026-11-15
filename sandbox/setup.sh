@@ -49,11 +49,24 @@ if ! openshell sandbox list 2>/dev/null | grep -q "pi-jarvis"; then
   openshell sandbox upload pi-jarvis "$REPO_DIR/skills"
 fi
 
-echo "==> Installing the launcher..."
+echo "==> Building the coder agent image (podman)..."
+podman build -q -t localhost/pi-coder-agent:latest -f "$REPO_DIR/sandbox/coder/Containerfile" "$REPO_DIR"
+
+echo "==> Creating the pi-coder sandbox (coding mode, separate sandbox)..."
+if ! openshell sandbox list 2>/dev/null | grep -q "pi-coder"; then
+  openshell sandbox create --name pi-coder \
+    --from localhost/pi-coder-agent:latest \
+    --provider openrouter-jarvis \
+    --env PI_CODING_AGENT_DIR=/sandbox/.pi-coder \
+    --detach
+fi
+
+echo "==> Installing the launchers..."
 cp "$REPO_DIR/sandbox/pi-jarvis-secure.sh" "$HOME/.local/bin/pi-jarvis-secure"
-chmod +x "$HOME/.local/bin/pi-jarvis-secure"
+cp "$REPO_DIR/sandbox/pi-coder-secure.sh" "$HOME/.local/bin/pi-coder-secure"
+chmod +x "$HOME/.local/bin/pi-jarvis-secure" "$HOME/.local/bin/pi-coder-secure"
 
 echo
 echo "==> Done. Try:"
-echo "    pi-jarvis-secure \"morning brief\""
-echo "    pi-jarvis-secure          # interactive chat"
+echo "    pi-jarvis-secure \"morning brief\"   # personal assistant sandbox"
+echo "    pi-coder-secure                    # coding sandbox (default pi)"
