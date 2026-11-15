@@ -52,6 +52,17 @@ exec podman run --rm -it \\
 LAUNCHER
 chmod +x "$BIN_DIR/pi-jarvis-desktop"
 
+
+# Native-UI launcher: runs PI-Desktop itself with the jarvis config (needs PI-Desktop installed)
+cat > "$BIN_DIR/pi-jarvis-native" <<'NATIVELAUNCH'
+#!/usr/bin/env bash
+# Launch PI-Desktop (the exact desktop UI) with the Pi Jarvis isolated config.
+DESKTOP_BIN="$(command -v pi-desktop || echo /opt/PI-Desktop/pi-desktop)"
+[ -x "$DESKTOP_BIN" ] || { echo "PI-Desktop is not installed — get it from https://pi.dev"; exit 1; }
+exec env PI_CODING_AGENT_DIR="$HOME/.pi-jarvis-desktop" "$DESKTOP_BIN" --user-data-dir="$HOME/.pi-desktop-jarvis" "$@"
+NATIVELAUNCH
+chmod +x "$BIN_DIR/pi-jarvis-native"
+
 echo "==> Creating app-menu entries..."
 mkdir -p "$HOME/.local/share/applications"
 cat > "$HOME/.local/share/applications/pi-jarvis.desktop" <<EOF
@@ -75,10 +86,22 @@ Categories=Utility;Office;
 Keywords=jarvis;assistant;ai;terminal;
 EOF
 
+cat > "$HOME/.local/share/applications/pi-jarvis-native.desktop" <<DESKTOPEOF
+[Desktop Entry]
+Type=Application
+Name=Pi Jarvis (Native UI)
+Comment=Your personal AI assistant — full desktop UI via PI-Desktop
+Exec=$BIN_DIR/pi-jarvis-native
+Terminal=false
+Categories=Utility;Office;
+Keywords=jarvis;assistant;ai;native;
+DESKTOPEOF
+
 cat <<'EOF'
 
 ==> Done. Two entries are in your app menu:
     "Pi Jarvis"             → chat window in your browser (recommended)
+    "Pi Jarvis (Native UI)" → full PI-Desktop UI pointed at jarvis (needs PI-Desktop installed)
     "Pi Jarvis (Terminal)"  → terminal chat
 
     Or from the command line:

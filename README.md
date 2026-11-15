@@ -149,3 +149,15 @@ What it gives you:
 Files: [`desktop/Containerfile`](desktop/Containerfile) · [`desktop/entrypoint.sh`](desktop/entrypoint.sh) · [`desktop/install-desktop.sh`](desktop/install-desktop.sh)
 
 Requires Linux with [podman](https://podman.io) (`sudo apt install podman`).
+
+## 🪟 Desktop app (three flavors)
+
+| Flavor | What you get | How |
+|---|---|---|
+| **Chat window** | browser chat at `localhost:8799` | `./desktop/install-desktop.sh` → app menu → **Pi Jarvis** |
+| **Electron app** | standalone window ([download from releases](https://github.com/saikiran1201/pi-jarvis/releases)) | `chmod +x "Pi Jarvis-1.0.0.AppImage" && ./Pi\ Jarvis-1.0.0.AppImage` |
+| **Native UI** | the **full PI-Desktop interface** pointed at the jarvis config | `pi-jarvis-native` (requires PI-Desktop installed) |
+
+All three share the same isolated brain: config in `~/.pi-jarvis-desktop/`, keys in `~/.pi-jarvis-desktop.env`, memory that survives restarts.
+
+Building the app yourself: `cd app && npm install && npm run dist` (produces AppImage/deb).

@@ -1,0 +1,28 @@
+{
+  "name": "pi-jarvis-app",
+  "productName": "Pi Jarvis",
+  "version": "1.0.0",
+  "description": "Pi Jarvis — your personal AI assistant (desktop app)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --linux deb AppImage"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.saikiran1201.pijarvis",
+    "productName": "Pi Jarvis",
+    "files": ["main.js"],
+    "linux": {
+      "target": ["deb", "AppImage"],
+      "category": "Utility",
+      "desktop": {
+        "Name": "Pi Jarvis",
+        "Comment": "Your personal AI assistant"
+      }
+    }
+  }
+}
