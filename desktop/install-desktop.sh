@@ -23,8 +23,15 @@ if [ -x "$PATCHED" ]; then
   DESKTOP_BIN="$PATCHED"
   # a user-copied chrome-sandbox can't keep root ownership -> Electron aborts.
   # Hiding it makes Electron use the kernel user-namespace sandbox instead.
+  # A user-copied chrome-sandbox can't keep root ownership. On Ubuntu 23.10+
+  # AppArmor also blocks the userns fallback, so the ONLY working config is a
+  # root-owned SUID helper. Try to fix it with sudo (may prompt once):
   SB="$(dirname "$PATCHED")/chrome-sandbox"
-  [ -f "$SB" ] && mv "$SB" "$SB.bak" 2>/dev/null || true
+  if [ -f "$SB" ] && [ "$(stat -c %U "$SB")" != "root" ]; then
+    echo "    Fixing chrome-sandbox ownership (sudo, one-time)..."
+    sudo chown root:root "$SB" 2>/dev/null && sudo chmod 4755 "$SB" 2>/dev/null \
+      || { mv "$SB" "$SB.bak"; echo "    ! Could not run sudo. Enable the sandbox later with:"; echo "      sudo chown root:root $SB.bak && sudo chmod 4755 $SB.bak && sudo mv $SB.bak $SB"; echo "    ! Until then, GUI launches may fail on Ubuntu 23.10+ (AppArmor userns restriction)."; }
+  fi
 fi
 
 echo "==> Seeding the Jarvis brain (first install only)..."
