@@ -1,77 +1,57 @@
 #!/usr/bin/env bash
-# Install Pi Jarvis as a podman-powered desktop app on Linux.
-# Creates two app-menu entries: "Pi Jarvis" (chat window) and "Pi Jarvis (Terminal)".
+# Install PI-Jarvis as a desktop app on Linux — the PI-Desktop UI running the
+# Jarvis personal-assistant brain, fully isolated from your coding setup.
+#
+# Creates one app-menu entry ("PI-Jarvis") + a desktop shortcut.
+# Requirements: PI-Desktop installed (https://pi.dev), python3-PIL for the icon.
 # Usage: ./install-desktop.sh
 set -euo pipefail
 
-REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"   # repo root (one level up from desktop/)
-IMAGE="localhost/pi-jarvis"
-BIN_DIR="$HOME/.local/bin"
-CFG="$HOME/.pi-jarvis-desktop"                 # persistent config on the host
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$HOME/.pi-jarvis-desktop"            # agent brain: config, skills, memory
+APP_DATA="$HOME/.pi-jarvis-desktop-app"        # desktop-app state (projects, UI)
+WORKSPACE="$HOME/Jarvis-Workspace"             # folder the app opens on
+KEYFILE="$HOME/.pi-jarvis-desktop.env"         # API keys (never commit)
 
-echo "==> Building the pi-jarvis container image (first run takes a few minutes)..."
-podman build -t "$IMAGE" -f "$REPO_DIR/desktop/Containerfile" "$REPO_DIR"
+echo "==> Locating PI-Desktop..."
+DESKTOP_BIN="$(command -v pi-desktop || true)"
+[ -x "$DESKTOP_BIN" ] || [ -x /opt/PI-Desktop/pi-desktop ] || { echo "PI-Desktop is not installed — get it from https://pi.dev"; exit 1; }
+[ -x "$DESKTOP_BIN" ] || DESKTOP_BIN=/opt/PI-Desktop/pi-desktop
+# prefer a PI-Jarvis-branded copy if one exists (see guides/native-branding.md)
+[ -x "$HOME/.local/opt/pi-jarvis-desktop/pi-desktop" ] && DESKTOP_BIN="$HOME/.local/opt/pi-jarvis-desktop/pi-desktop"
 
-echo "==> Creating launchers..."
-mkdir -p "$BIN_DIR"
-
-# GUI launcher: start (or reuse) the web server container, open the chat window
-cat > "$BIN_DIR/pi-jarvis-gui" <<LAUNCHER
-#!/usr/bin/env bash
-CFG="\$HOME/.pi-jarvis-desktop"
-mkdir -p "\$CFG"
-[ -f "\$HOME/.pi-jarvis-desktop.env" ] && . "\$HOME/.pi-jarvis-desktop.env"
-if ! podman ps --format '{{.Names}}' | grep -q '^pi-jarvis-ui\$'; then
-  podman rm -f pi-jarvis-ui >/dev/null 2>&1 || true
-  podman run -d --name pi-jarvis-ui \\
-    -v "\$CFG:/home/jarvis/.pi-jarvis" \\
-    -e JARVIS_MODE=webui \\
-    -e OPENROUTER_API_KEY="\${OPENROUTER_API_KEY:-}" \\
-    -e ANTHROPIC_API_KEY="\${ANTHROPIC_API_KEY:-}" \\
-    -e GOOGLE_GENERATIVE_AI_API_KEY="\${GOOGLE_GENERATIVE_AI_API_KEY:-}" \\
-    -p 127.0.0.1:8799:8799 \\
-    $IMAGE >/dev/null
-  sleep 2
+echo "==> Seeding the Jarvis brain (first install only)..."
+if [ ! -f "$DATA_DIR/AGENTS.md" ]; then
+  mkdir -p "$DATA_DIR/skills"
+  cp "$REPO_DIR/AGENTS.md" "$DATA_DIR/AGENTS.md"
+  cp -R "$REPO_DIR/skills/." "$DATA_DIR/skills/"
+  echo "    AGENTS.md + skills copied into $DATA_DIR"
 fi
-xdg-open http://localhost:8799 >/dev/null 2>&1 || echo "Open http://localhost:8799 in your browser"
-LAUNCHER
-chmod +x "$BIN_DIR/pi-jarvis-gui"
+mkdir -p "$APP_DATA" "$WORKSPACE"
 
-# Terminal launcher (chat in a console window)
-cat > "$BIN_DIR/pi-jarvis-desktop" <<LAUNCHER
+echo "==> Installing packages into the Jarvis brain..."
+if command -v pi >/dev/null; then
+  ( export PI_CODING_AGENT_DIR="$DATA_DIR"
+    for p in pi-hermes-memory pi-observational-memory @netandreus/pi-auto pi-web-access tau-all-agent; do
+      pi install "npm:$p" 2>/dev/null | tail -1 || true
+    done )
+else
+  echo "    ! 'pi' CLI not found — install packages later from inside the app"
+fi
+
+echo "==> Creating launcher..."
+BIN_DIR="$HOME/.local/bin"
+mkdir -p "$BIN_DIR"
+cat > "$BIN_DIR/pi-jarvis-native" <<LAUNCHER
 #!/usr/bin/env bash
-CFG="\$HOME/.pi-jarvis-desktop"
-mkdir -p "\$CFG"
-[ -f "\$HOME/.pi-jarvis-desktop.env" ] && . "\$HOME/.pi-jarvis-desktop.env"
-exec podman run --rm -it \\
-  -v "\$CFG:/home/jarvis/.pi-jarvis" \\
-  -e OPENROUTER_API_KEY="\${OPENROUTER_API_KEY:-}" \\
-  -e ANTHROPIC_API_KEY="\${ANTHROPIC_API_KEY:-}" \\
-  -e GOOGLE_GENERATIVE_AI_API_KEY="\${GOOGLE_GENERATIVE_AI_API_KEY:-}" \\
-  $IMAGE "\$@"
+# Launch PI-Jarvis: PI-Desktop UI + isolated Jarvis brain + own workspace.
+mkdir -p "$WORKSPACE"
+cd "$WORKSPACE"
+exec env \\
+  PI_CODING_AGENT_DIR="$DATA_DIR" \\
+  PI_DESKTOP_DATA_DIR="$APP_DATA" \\
+  "$DESKTOP_BIN" --user-data-dir="$HOME/.pi-desktop-jarvis" "\$@"
 LAUNCHER
-chmod +x "$BIN_DIR/pi-jarvis-desktop"
-
-
-# Native-UI launcher: runs PI-Desktop itself with the jarvis config (needs PI-Desktop installed)
-cat > "$BIN_DIR/pi-jarvis-native" <<'NATIVELAUNCH'
-#!/usr/bin/env bash
-# Launch PI-Desktop (the exact desktop UI) with the Pi Jarvis isolated config.
-# prefer the patched PI-Jarvis-branded copy, fall back to stock PI-Desktop
-PATCHED_BIN="$HOME/.local/opt/pi-jarvis-desktop/pi-desktop"
-if [ -x "$PATCHED_BIN" ]; then DESKTOP_BIN="$PATCHED_BIN";
-elif command -v pi-desktop >/dev/null; then DESKTOP_BIN="$(command -v pi-desktop)";
-elif [ -x /opt/PI-Desktop/pi-desktop ]; then DESKTOP_BIN=/opt/PI-Desktop/pi-desktop;
-else echo "PI-Desktop is not installed — get it from https://pi.dev"; exit 1; fi
-# dedicated workspace + fully separate app data (projects/sessions/settings)
-# PI_DESKTOP_DATA_DIR is PI-Desktop's own supported override for its data dir
-mkdir -p "$HOME/Jarvis-Workspace"
-cd "$HOME/Jarvis-Workspace"
-exec env \
-  PI_CODING_AGENT_DIR="$HOME/.pi-jarvis-desktop" \
-  PI_DESKTOP_DATA_DIR="$HOME/.pi-jarvis-desktop-app" \
-  "$DESKTOP_BIN" --user-data-dir="$HOME/.pi-desktop-jarvis" "$@"
-NATIVELAUNCH
 chmod +x "$BIN_DIR/pi-jarvis-native"
 
 echo "==> Installing app icon..."
@@ -85,75 +65,33 @@ try: f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.tt
 except Exception: f = ImageFont.load_default()
 d.text((128,128),"J",font=f,fill=(88,166,255,255),anchor="mm")
 img.save("$HOME/.local/share/icons/hicolor/256x256/apps/pi-jarvis.png")
-img2 = Image.new("RGBA",(256,256),(0,0,0,0))
-d2 = ImageDraw.Draw(img2)
-d2.rounded_rectangle([8,8,248,208],radius=56,fill=(13,17,23,255),outline=(63,185,80,255),width=8)
-d2.polygon([(70,208),(70,246),(112,208)],fill=(13,17,23,255))
-d2.text((128,106),"J",font=f,fill=(63,185,80,255),anchor="mm")
-img2.save("$HOME/.local/share/icons/hicolor/256x256/apps/pi-jarvis-chat.png")
 PYICON
 gtk-update-icon-cache -f ~/.local/share/icons/hicolor 2>/dev/null || true
 
-echo "==> Creating app-menu entries..."
+echo "==> Creating app-menu entry + desktop shortcut..."
 mkdir -p "$HOME/.local/share/applications"
-cat > "$HOME/.local/share/applications/pi-jarvis.desktop" <<EOF
-[Desktop Entry]
-Type=Application
-Name=Pi Jarvis
-Comment=Your personal AI assistant — chat window (podman-isolated)
-Exec=$BIN_DIR/pi-jarvis-gui
-Terminal=false
-Categories=Utility;
-Icon=pi-jarvis
-Keywords=jarvis;assistant;ai;
-EOF
-cat > "$HOME/.local/share/applications/pi-jarvis-terminal.desktop" <<EOF
-[Desktop Entry]
-Type=Application
-Name=Pi Jarvis (Terminal)
-Comment=Your personal AI assistant — terminal chat (podman-isolated)
-Exec=$BIN_DIR/pi-jarvis-desktop
-Terminal=true
-Categories=Utility;
-Icon=pi-jarvis
-Keywords=jarvis;assistant;ai;terminal;
-EOF
-
 cat > "$HOME/.local/share/applications/pi-jarvis-native.desktop" <<DESKTOPEOF
 [Desktop Entry]
 Type=Application
-Name=Pi Jarvis (Native UI)
-Comment=Your personal AI assistant — full desktop UI via PI-Desktop
+Name=PI-Jarvis
+Comment=Your personal AI assistant — full desktop UI, isolated brain
 Exec=$BIN_DIR/pi-jarvis-native
 Terminal=false
-Categories=Utility;
 Icon=pi-jarvis
-Keywords=jarvis;assistant;ai;native;
-DESKTOPEOF
-
-cat > "$HOME/.local/share/applications/pi-jarvis-chat.desktop" <<DESKTOPEOF
-[Desktop Entry]
-Type=Application
-Name=PI-Jarvis Chat
-Comment=Your personal AI assistant — browser chat window
-Exec=$BIN_DIR/pi-jarvis-gui
-Terminal=false
-Icon=pi-jarvis-chat
 Categories=Utility;
-Keywords=jarvis;assistant;ai;chat;
+Keywords=jarvis;assistant;ai;
 DESKTOPEOF
+if [ -d "$HOME/Desktop" ]; then
+  sed 's/^Name=PI-Jarvis$/Name=PI-Jarvis/' "$HOME/.local/share/applications/pi-jarvis-native.desktop" > "$HOME/Desktop/pi-jarvis.desktop"
+  chmod +x "$HOME/Desktop/pi-jarvis.desktop"
+fi
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 
 cat <<'EOF'
 
-==> Done. Two entries are in your app menu:
-    "Pi Jarvis"             → chat window in your browser (recommended)
-    "Pi Jarvis (Native UI)" → full PI-Desktop UI pointed at jarvis (needs PI-Desktop installed)
-    "Pi Jarvis (Terminal)"  → terminal chat
+==> Done. Launch "PI-Jarvis" from your app menu (or double-click the desktop
+    shortcut), or run: pi-jarvis-native
 
-    Or from the command line:
-    pi-jarvis-gui           chat window
-    pi-jarvis-desktop       terminal chat
-
-    API keys live in ~/.pi-jarvis-desktop.env (never in this repo):
-    echo "OPENROUTER_API_KEY=sk-or-..." > ~/.pi-jarvis-desktop.env
+    API keys: echo "OPENROUTER_API_KEY=sk-or-..." > ~/.pi-jarvis-desktop.env
+    The app opens on ~/Jarvis-Workspace with its own memory and sessions.
 EOF

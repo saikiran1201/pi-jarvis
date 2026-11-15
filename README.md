@@ -150,14 +150,15 @@ Files: [`desktop/Containerfile`](desktop/Containerfile) · [`desktop/entrypoint.
 
 Requires Linux with [podman](https://podman.io) (`sudo apt install podman`).
 
-## 🪟 Desktop app (three flavors)
+## 🪟 Desktop app — the PI-Desktop UI, running PI-Jarvis
 
-| Flavor | What you get | How |
-|---|---|---|
-| **Chat window** | browser chat at `localhost:8799` | `./desktop/install-desktop.sh` → app menu → **Pi Jarvis** |
-| **Electron app** | standalone window ([download from releases](https://github.com/saikiran1201/pi-jarvis/releases)) | `chmod +x "Pi Jarvis-1.0.0.AppImage" && ./Pi\ Jarvis-1.0.0.AppImage` |
-| **Native UI** | the **full PI-Desktop interface** pointed at the jarvis config | `pi-jarvis-native` (requires PI-Desktop installed) |
+One app, fully isolated from your coding setup:
 
-All three share the same isolated brain: config in `~/.pi-jarvis-desktop/`, keys in `~/.pi-jarvis-desktop.env`, memory that survives restarts.
+```bash
+./desktop/install-desktop.sh
+```
 
-Building the app yourself: `cd app && npm install && npm run dist` (produces AppImage/deb).
+- App-menu entry **"PI-Jarvis"** (+ desktop shortcut) launches the full PI-Desktop interface
+- Opens on its own workspace (`~/Jarvis-Workspace`), own memory, own sessions
+- Brain lives in `~/.pi-jarvis-desktop/`, keys in `~/.pi-jarvis-desktop.env` (never committed)
+- Requires PI-Desktop installed (https://pi.dev); if a PI-Jarvis-branded copy exists it's used so the header reads **PI-Jarvis**
