@@ -1,5 +1,5 @@
 #!/bin/sh
-# Container entrypoint: seed config on first launch, then exec pi.
+# Container entrypoint: seed config on first launch, then start pi or the web UI.
 set -e
 CFG="$PI_CODING_AGENT_DIR"
 
@@ -13,7 +13,11 @@ if [ ! -f "$CFG/AGENTS.md" ]; then
   pi install npm:pi-observational-memory || true
   pi install npm:@netandreus/pi-auto || true
   pi install npm:pi-web-access || true
-  echo "==> Seeded. Starting Pi Jarvis."
+  echo "==> Seeded."
+fi
+
+if [ "$JARVIS_MODE" = "webui" ]; then
+  exec node /opt/jarvis-webui/server.js
 fi
 
 exec pi "$@"
