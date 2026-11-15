@@ -59,10 +59,14 @@ cat > "$BIN_DIR/pi-jarvis-native" <<'NATIVELAUNCH'
 # Launch PI-Desktop (the exact desktop UI) with the Pi Jarvis isolated config.
 DESKTOP_BIN="$(command -v pi-desktop || echo /opt/PI-Desktop/pi-desktop)"
 [ -x "$DESKTOP_BIN" ] || { echo "PI-Desktop is not installed — get it from https://pi.dev"; exit 1; }
-# dedicated workspace so the UI opens on Jarvis' own folder, not your coding one
+# dedicated workspace + fully separate app data (projects/sessions/settings)
+# PI_DESKTOP_DATA_DIR is PI-Desktop's own supported override for its data dir
 mkdir -p "$HOME/Jarvis-Workspace"
 cd "$HOME/Jarvis-Workspace"
-exec env PI_CODING_AGENT_DIR="$HOME/.pi-jarvis-desktop" "$DESKTOP_BIN" --user-data-dir="$HOME/.pi-desktop-jarvis" "$@"
+exec env \
+  PI_CODING_AGENT_DIR="$HOME/.pi-jarvis-desktop" \
+  PI_DESKTOP_DATA_DIR="$HOME/.pi-jarvis-desktop-app" \
+  "$DESKTOP_BIN" --user-data-dir="$HOME/.pi-desktop-jarvis" "$@"
 NATIVELAUNCH
 chmod +x "$BIN_DIR/pi-jarvis-native"
 
