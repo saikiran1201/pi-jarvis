@@ -1,8 +1,10 @@
 # personal-ai-assistant
 
-My personal AI assistant configuration for [PI-Desktop](https://github.com/badlogic/pi-mono) — the coding-agent app I run daily.
+> A minimal, open-source starter template for building your own personal AI assistant on [PI-Desktop](https://github.com/badlogic/pi-mono). Fork it, rename it, make it yours.
 
-This repo does **not** contain the app itself. It contains the personalization layer that turns a stock PI-Desktop install into *my* assistant:
+Most AI-agent setups are either bloated (dozens of packages) or undocumented. This repo is the opposite: a **5-package minimal config**, one example skill, and a migration guide — everything you need to turn a stock PI-Desktop install into an assistant that knows *you*.
+
+This repo does **not** contain the app itself. It contains the personalization layer:
 
 ```
 ├── AGENTS.md   ← agent rules: tone, context, safety, daily flow
@@ -10,6 +12,18 @@ This repo does **not** contain the app itself. It contains the personalization l
 ├── guides/     ← longer how-to notes (setup, migration between machines)
 └── LICENSE
 ```
+
+## The minimal setup (what this repo documents)
+
+Turn any stock PI-Desktop install into a personal assistant with just:
+
+| Piece | Where it goes | What it does |
+|---|---|---|
+| `AGENTS.md` | `~/.pi/agent/AGENTS.md` | Personality, rules, privacy/safety baseline |
+| Skills | `~/.pi/agent/skills/` | On-demand capabilities (e.g. daily-brief) |
+| Model keys | App Settings UI | Provider access — **never** in this repo |
+
+That's the whole personalization layer; everything else is the stock app.
 
 ## What this gives me
 
