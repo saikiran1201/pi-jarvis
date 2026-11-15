@@ -1,8 +1,8 @@
 {
   "name": "pi-jarvis-app",
   "productName": "Pi Jarvis",
-  "version": "1.0.0",
-  "description": "Pi Jarvis — your personal AI assistant (desktop app)",
+  "version": "1.0.1",
+  "description": "Pi Jarvis \u2014 your personal AI assistant (desktop app)",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -15,9 +15,14 @@
   "build": {
     "appId": "com.saikiran1201.pijarvis",
     "productName": "Pi Jarvis",
-    "files": ["main.js"],
+    "files": [
+      "main.js"
+    ],
     "linux": {
-      "target": ["deb", "AppImage"],
+      "target": [
+        "deb",
+        "AppImage"
+      ],
       "category": "Utility",
       "desktop": {
         "Name": "Pi Jarvis",

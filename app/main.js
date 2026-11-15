@@ -9,7 +9,7 @@ function createWindow() {
     height: 760,
     minWidth: 640,
     minHeight: 480,
-    title: "Pi Jarvis",
+    title: "PI-Jarvis",
     backgroundColor: "#0d1117",
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false },
