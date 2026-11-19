@@ -7,7 +7,7 @@ IMAGE="${PI_CODER_SANDBOX_IMAGE:-localhost/pi-coder-agent:latest}"
 
 command -v openshell >/dev/null || { echo "openshell CLI not installed — see https://github.com/NVIDIA/OpenShell"; exit 1; }
 
-if ! openshell sandbox list 2>/dev/null | grep -q "$SB"; then
+if ! openshell sandbox list 2>/dev/null | awk '{print $1}' | grep -qx "$SB"; then
   echo "==> Creating OpenShell sandbox '$SB'..."
   openshell sandbox create --name "$SB" --from "$IMAGE" \
     --provider openrouter-jarvis \
